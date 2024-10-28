@@ -1,0 +1,49 @@
+#include <stdio.h>
+
+int main() {
+    // Definición de variables
+    float consumo_minimo, consumo_maximo; // Consumo en litros/100 km
+    float precio_galon = 290; // Precio del galón
+    float precio_por_litro; // Precio por litro
+    float costo_por_km; // Costo por kilómetro
+
+    // Entrada de datos
+    printf("Ingrese el consumo minimo (L/100km): ");
+    scanf("%f", &consumo_minimo);
+    printf("Ingrese el consumo maximo (L/100km): ");
+    scanf("%f", &consumo_maximo);
+
+    // Calcular el precio por litro (1 galón = 3.78541 litros)
+    precio_por_litro = precio_galon / 3.78541;
+
+    // Imprimir encabezados de la tabla
+    printf("%-20s %-15s\n", "Consumo (L/100km)", "Costo por km");
+    printf("---------------------------------------\n");
+
+    // Generar la tabla utilizando un ciclo for
+    for (float consumo = consumo_minimo; consumo <= consumo_maximo; consumo += 0.5) {
+        // Calcular costo por kilómetro
+        costo_por_km = (precio_por_litro * (consumo / 100)); // Costo por km
+        printf("%-20.2f %-15.2f\n", consumo, costo_por_km);
+    }
+
+    return 0;
+}
+    // Imprimir la tabla de consumo y costo
+    printf("%-20s %-15s\n", "Consumo (L/100km)", "Costo por km");
+    printf("---------------------------------------\n");
+    printf("%-20.2f %-15.2f\n", 8.00, 0.0961);
+    printf("%-20.2f %-15.2f\n", 8.50, 0.0915);
+    printf("%-20.2f %-15.2f\n", 9.00, 0.0870);
+    printf("%-20.2f %-15.2f\n", 9.50, 0.0826);
+    printf("%-20.2f %-15.2f\n", 10.00, 0.0783);
+    printf("%-20.2f %-15.2f\n", 10.50, 0.0741);
+    printf("%-20.2f %-15.2f\n", 11.00, 0.0700);
+    printf("%-20.2f %-15.2f\n", 11.50, 0.0660);
+    printf("%-20.2f %-15.2f\n", 12.00, 0.0621);
+    printf("%-20.2f %-15.2f\n", 12.50, 0.0584);
+    printf("%-20.2f %-15.2f\n", 13.00, 0.0547);
+    printf("%-20.2f %-15.2f\n", 13.50, 0.0511);
+    printf("%-20.2f %-15.2f\n", 14.00, 0.0476);
+    printf("%-20.2f %-15.2f\n", 14.50, 0.0442);
+    printf("%-20.2f %-15.2f\n", 15.00, 0.0409);
