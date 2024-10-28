@@ -59,3 +59,37 @@ void F2(float A[][12], int F, int C)
 {
 /* Esta función calcula el promedio anualizado de las acciones de los diferentes
 ➥fondos. */
+int I, J;
+float SUM, PRO;
+printf(”\n\nPROMEDIO ANUALIZADO DE LAS ACCIONES DE LOS FONDOS”);
+for(I=0; I<R; I++)
+{
+SUM = 0;
+for(J=0; J<C; J++)
+SUM += A[I][J];
+PRO = SUM / C;
+printf(”\nFondo %d: %.2f”, I+1, PRO);
+}
+}
+void F3(float A[], int F)
+/* Esta función permite calcular los fondos con el mejor y peor rendimiento. */
+{
+float ME = A[0], PE = A[0];
+int M = 0, P = 0, I;
+for (I=1; I<F; I++)
+{
+if (A[I] > ME)
+{
+ME = A[I];
+M = I;
+}
+if (A[I] < PE)
+{
+PE = A[I];
+P = I;
+}
+}
+printf(”\n\nMEJOR Y PEOR FONDO DE INVERSION”);
+printf(”\nMejor fondo: %d\tRendimiento: %6.2f”, M+1, ME);
+printf(”\nPeor fondo: %d\tRendimiento: %6.2f”, P+1, PE);
+}
