@@ -1,0 +1,87 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Funciones para convertir partes del número
+const char *unidades[] = {
+    "", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"
+};
+
+const char *decenas[] = {
+    "", "diez", "veinte", "treinta", "cuarenta", "cincuenta", 
+    "sesenta", "setenta", "ochenta", "noventa"
+};
+
+const char *decenasCompuestas[] = {
+    "once", "doce", "trece", "catorce", "quince", 
+    "dieciséis", "diecisiete", "dieciocho", "diecinueve"
+};
+
+const char *centenas[] = {
+    "", "cien", "doscientos", "trescientos", "cuatrocientos", 
+    "quinientos", "seiscientos", "setecientos", "ochocientos", "novecientos"
+};
+
+// Función para convertir la parte entera
+void convertirParteEntera(int numero, char *resultado) {
+    if (numero >= 100) {
+        strcat(resultado, centenas[numero / 100]);
+        numero %= 100;
+    }
+    if (numero >= 20) {
+        strcat(resultado, decenas[numero / 10]);
+        numero %= 10;
+        if (numero > 0) {
+            strcat(resultado, " y ");
+            strcat(resultado, unidades[numero]);
+        }
+    } else if (numero >= 11) {
+        strcat(resultado, decenasCompuestas[numero - 11]);
+    } else if (numero == 10 || numero == 1) {
+        strcat(resultado, decenas[1]);
+    } else {
+        strcat(resultado, unidades[numero]);
+    }
+}
+
+// Función para convertir la parte decimal
+void convertirParteDecimal(int numero, char *resultado) {
+    if (numero > 0) {
+        strcat(resultado, " con ");
+        strcat(resultado, unidades[numero]);
+        strcat(resultado, " centavos");
+    }
+}
+
+int main() {
+    float numero;
+    char resultado[100] = "";
+    char opcion;
+
+    do {
+        printf("Ingrese un numero (por ejemplo, 150.10): ");
+        scanf("%f", &numero);
+        
+        int parteEntera = (int)numero;
+        int parteDecimal = (int)((numero - parteEntera) * 100);
+
+        convertirParteEntera(parteEntera, resultado);
+        if (parteEntera == 1) {
+            strcat(resultado, " peso");
+        } else {
+            strcat(resultado, " pesos");
+        }
+        convertirParteDecimal(parteDecimal, resultado);
+
+        printf("Salida: %s\n", resultado);
+
+        // Reiniciar el resultado para la siguiente iteración
+        memset(resultado, 0, sizeof(resultado));
+
+        printf("¿Desea convertir otro número? (s/n): ");
+        scanf(" %c", &opcion);
+        
+    } while (opcion == 's' || opcion == 'S');
+
+    return 0;
+}
