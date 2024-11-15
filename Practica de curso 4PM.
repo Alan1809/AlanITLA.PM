@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Función que asigna memoria a un arreglo e inicializa sus valores
+void createArray(int **arr, int size) {
+    // Asignar memoria para el arreglo
+    *arr = (int *)malloc(size * sizeof(int));
+    if (*arr == NULL) {
+        printf("Error al asignar memoria\n");
+        exit(1); // Terminar el programa si no hay memoria
+    }
+
+    // Inicializar el arreglo con valores
+    for (int i = 0; i < size; i++) {
+        (*arr)[i] = i + 1; // Asignar valores
+    }
+}
+
+int main() {
+    int *array = NULL;  // Puntero que será modificado por la función
+    int size;           // Variable para el tamaño del arreglo
+
+    // Solicitar al usuario el tamaño del arreglo
+    printf("Ingrese el tamaño del arreglo: ");
+    scanf("%d", &size);
+
+    // Llamar a la función para crear e inicializar el arreglo
+    createArray(&array, size);
+
+    // Imprimir el contenido del arreglo
+    printf("Elementos del arreglo: ");
+    for (int i = 0; i < size; i++) {
+        printf("%d ", array[i]);
+    }
+    printf("\n");
+
+    // Liberar la memoria asignada
+    free(array);
+
+    return 0;
+}
