@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Función para descifrar la frase
+void descifrar()
+{
+    char frase[100];
+    int key;
+    int i, salto = 0;
+
+    while(1)
+    {
+        system("cls"); // Limpiar pantalla
+        printf("Ingresa la frase a decifrar: ");
+        gets(frase); // Ingresar la frase a decifrar
+        do {
+            printf("Inserisci la chiave di cifratura (entre 1 y 10): ");
+            scanf("%d", &key); // Ingresar la clave de cifrado
+        } while (key < 1 || key > 10);
+
+        printf("\n\n----------------------------------\nFrase decifrada:\n");
+
+        for (i = 0; i < strlen(frase); i++, salto = 0)
+        {
+            if (frase[i] < 32 + key)
+            {
+                salto = 95; // Ajuste si el valor se sale del rango
+            }
+            printf("%c", frase[i] - key + salto); // Desplazar los caracteres hacia atrás
+        }
+
+        printf("\n\n");
+        system("pause"); // Pausar para ver el resultado
+    }
+}
+
+// Función para cifrar la frase
+void cifrar()
+{
+    char frase[100];
+    int key;
+    int i, salto = 0;
+
+    while(1)
+    {
+        system("cls"); // Limpiar pantalla
+        printf("Ingresa la frase a cifrar: ");
+        gets(frase); // Ingresar la frase a cifrar
+        do {
+            printf("Inserisci la chiave di cifratura (entre 1 y 10): ");
+            scanf("%d", &key); // Ingresar la clave de cifrado
+        } while (key < 1 || key > 10);
+
+        printf("\n\n----------------------------------\nFrase cifrada:\n");
+
+        for (i = 0; i < strlen(frase); i++, salto = 0)
+        {
+            if (frase[i] > 126 - key)
+            {
+                salto = 95; // Ajuste si el valor se sale del rango
+            }
+            printf("%c", frase[i] + key - salto); // Desplazar los caracteres hacia adelante
+        }
+
+        printf("\n\n");
+        system("pause"); // Pausar para ver el resultado
+    }
+}
+
+int main()
+{
+    int opcion;
+
+    while(1)
+    {
+        system("cls"); // Limpiar pantalla
+        printf("Elige una opcion:\n");
+        printf("1. Cifrar texto\n");
+        printf("2. Decifrar texto\n");
+        printf("3. Salir\n");
+        printf("Opcion: ");
+        scanf("%d", &opcion);
+
+        switch(opcion)
+        {
+            case 1:
+                cifrar(); // Llamar a la función de cifrado
+                break;
+            case 2:
+                descifrar(); // Llamar a la función de descifrado
+                break;
+            case 3:
+                return 0; // Salir del programa
+            default:
+                printf("Opción inválida\n");
+                system("pause");
+                break;
+        }
+    }
+
+    return 0;
+}
