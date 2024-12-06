@@ -1,126 +1,158 @@
-#include <stdio.h>  // Biblioteca estándar de entrada y salida
-#include <stdlib.h> // Biblioteca para funciones de utilidad, como malloc, free, etc.
-#include <string.h> // Biblioteca para manipulación de cadenas
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 
-// Definimos constantes para los límites máximos de cadenas
-#define MAX_NAME_LEN 50      // Longitud máxima para el nombre del alumno
-#define MAX_CAREER_LEN 50    // Longitud máxima para el nombre de la carrera
-#define FILE_NAME_LEN 100    // Longitud máxima para el nombre del archivo
-
-// Definición de la estructura Alumno
+// Definir la estructura Alumno para almacenar los datos del estudiante
 typedef struct {
-    char nombre[MAX_NAME_LEN];  // Nombre del alumno
-    float promedio;             // Promedio del alumno
-    char carrera[MAX_CAREER_LEN]; // Carrera del alumno
-} Alumno;  // Estructura que representa un registro de alumno
+    char nombre[100];   // Nombre del alumno
+    float promedio;     // Promedio del alumno
+    char carrera[100];  // Carrera del alumno
+} Alumno;
 
-// Prototipos de funciones
-void nuevoArchivo();  // Crea un nuevo archivo vacío
-void abrirArchivo();  // Abre y muestra el contenido de un archivo
-void guardarArchivo(const char *nombreArchivo, Alumno *alumnos, int totalAlumnos); // Guarda un conjunto de alumnos en un archivo
-void buscarEnArchivo(const char *nombreArchivo); // Busca un alumno en el archivo por nombre
-void agregarAlumno(const char *nombreArchivo);  // Agrega un nuevo alumno al archivo
-int verificarArchivoExiste(const char *nombreArchivo); // Comprueba si un archivo existe
+// Función para verificar si un archivo existe
+bool archivoExiste(const char *nombreArchivo) {
+    FILE *archivo = fopen(nombreArchivo, "r"); // Intentamos abrir el archivo en modo lectura
+    if (archivo) {
+        fclose(archivo); // Si el archivo se abre correctamente, lo cerramos
+        return true;     // El archivo existe
+    }
+    return false;        // El archivo no existe
+}
+
+// Función para escribir un registro Alumno en el archivo
+void escribirAlumno(FILE *archivo, Alumno alumno) {
+    fwrite(&alumno, sizeof(Alumno), 1, archivo); // Escribir la estructura Alumno en el archivo
+}
+
+// Función para leer un registro Alumno del archivo
+void leerAlumno(FILE *archivo, Alumno *alumno) {
+    fread(alumno, sizeof(Alumno), 1, archivo); // Leer un registro Alumno del archivo
+}
+
+// Función para buscar un alumno por nombre y mostrar su renglón
+void buscarAlumno(FILE *archivo, const char *nombreBuscar) {
+    Alumno alumno;
+    fseek(archivo, 0, SEEK_SET); // Reiniciar el puntero al inicio del archivo
+    int encontrado = 0, renglon = 1; // `renglon` lleva la cuenta de la posición en el archivo
+
+    while (fread(&alumno, sizeof(Alumno), 1, archivo) == 1) { // Leer cada registro
+        if (strstr(alumno.nombre, nombreBuscar) != NULL) { // Buscar coincidencia en el nombre
+            printf("Renglón %d: %s | Promedio: %.2f | Carrera: %s\n", 
+                   renglon, alumno.nombre, alumno.promedio, alumno.carrera);
+            encontrado = 1;
+        }
+        renglon++; // Incrementar el contador de renglón
+    }
+    if (!encontrado) {
+        printf("No se encontró ningún alumno con ese nombre.\n");
+    }
+}
+
+// Función para mostrar el menú principal
+void mostrarMenu() {
+    printf("\n--- Sistema de Gestión de Alumnos ---\n");
+    printf("1. Crear un archivo nuevo\n");
+    printf("2. Abrir un archivo existente\n");
+    printf("3. Guardar y cerrar archivo\n");
+    printf("4. Buscar alumno por nombre\n");
+    printf("5. Agregar nuevo registro\n");
+    printf("6. Salir\n");
+    printf("Seleccione una opción: ");
+}
 
 // Función principal
 int main() {
-    int opcion;  // Almacena la opción seleccionada por el usuario en el menú
-    char nombreArchivo[FILE_NAME_LEN];  // Variable para el nombre del archivo
+    FILE *archivo = NULL;        // Puntero al archivo actual
+    char nombreArchivo[100];     // Nombre del archivo
+    Alumno alumno;               // Variable para almacenar datos del alumno
+    int opcion;                  // Variable para la opción del menú
+    char nombreBuscar[100];      // Nombre a buscar en el archivo
 
-    // Bucle principal para mostrar el menú hasta que el usuario seleccione salir
-    do {
-        // Imprime el menú
-        printf("\n--- Menu ---\n");
-        printf("1. Nuevo Archivo\n");
-        printf("2. Abrir Archivo\n");
-        printf("3. Guardar Archivo\n");
-        printf("4. Buscar en Archivo\n");
-        printf("5. Agregar Nuevo Alumno\n");
-        printf("0. Salir\n");
-        printf("Seleccione una opción: ");
-        scanf("%d", &opcion);  // Lee la opción del usuario
-        getchar();  // Consumir el salto de línea sobrante
+    while (1) { // Ciclo infinito para manejar el menú
+        mostrarMenu();           // Mostrar el menú principal
+        scanf("%d", &opcion);    // Leer la opción seleccionada por el usuario
+        getchar();               // Limpiar el buffer del teclado
 
-        // Control de flujo según la opción seleccionada
         switch (opcion) {
-            case 1:  // Crear un nuevo archivo
-                nuevoArchivo();
+            case 1: // Crear un archivo nuevo
+                printf("Ingrese el nombre del archivo nuevo: ");
+                scanf("%s", nombreArchivo); // Leer el nombre del archivo
+                archivo = fopen(nombreArchivo, "wb"); // Crear el archivo en modo binario escritura
+                if (archivo == NULL) {
+                    printf("Error al crear el archivo.\n");
+                } else {
+                    printf("Archivo '%s' creado exitosamente.\n", nombreArchivo);
+                }
                 break;
-            case 2:  // Abrir y leer un archivo existente
+
+            case 2: // Abrir un archivo existente
                 printf("Ingrese el nombre del archivo a abrir: ");
-                fgets(nombreArchivo, FILE_NAME_LEN, stdin); // Leer el nombre del archivo
-                nombreArchivo[strcspn(nombreArchivo, "\n")] = 0; // Eliminar el salto de línea
-                abrirArchivo(nombreArchivo);
+                scanf("%s", nombreArchivo); // Leer el nombre del archivo
+                if (archivoExiste(nombreArchivo)) {
+                    archivo = fopen(nombreArchivo, "rb+"); // Abrir archivo en lectura/escritura
+                    if (archivo == NULL) {
+                        printf("No se pudo abrir el archivo.\n");
+                    } else {
+                        printf("Archivo '%s' abierto exitosamente.\n", nombreArchivo);
+                    }
+                } else {
+                    printf("El archivo no existe.\n");
+                }
                 break;
-            case 3:  // Guardar un archivo
-                printf("Ingrese el nombre del archivo a guardar: ");
-                fgets(nombreArchivo, FILE_NAME_LEN, stdin); // Leer el nombre del archivo
-                nombreArchivo[strcspn(nombreArchivo, "\n")] = 0; // Eliminar el salto de línea
-                // Aquí puedes implementar guardarArchivo según tu lógica
+
+            case 3: // Guardar y cerrar archivo
+                if (archivo != NULL) {
+                    fclose(archivo); // Cerrar el archivo abierto
+                    archivo = NULL; // Liberar el puntero
+                    printf("Archivo guardado correctamente.\n");
+                } else {
+                    printf("No hay archivo abierto para guardar.\n");
+                }
                 break;
-            case 4:  // Buscar un alumno en el archivo
-                printf("Ingrese el nombre del archivo donde buscar: ");
-                fgets(nombreArchivo, FILE_NAME_LEN, stdin);
-                nombreArchivo[strcspn(nombreArchivo, "\n")] = 0;
-                buscarEnArchivo(nombreArchivo);
+
+            case 4: // Buscar alumno por nombre
+                if (archivo != NULL) {
+                    printf("Ingrese el nombre a buscar: ");
+                    fgets(nombreBuscar, sizeof(nombreBuscar), stdin); // Leer nombre de búsqueda
+                    nombreBuscar[strcspn(nombreBuscar, "\n")] = 0;   // Eliminar salto de línea
+                    buscarAlumno(archivo, nombreBuscar);             // Buscar en el archivo
+                } else {
+                    printf("No hay archivo abierto.\n");
+                }
                 break;
-            case 5:  // Agregar un nuevo alumno al archivo
-                printf("Ingrese el nombre del archivo donde agregar: ");
-                fgets(nombreArchivo, FILE_NAME_LEN, stdin);
-                nombreArchivo[strcspn(nombreArchivo, "\n")] = 0;
-                agregarAlumno(nombreArchivo);
+
+            case 5: // Agregar un nuevo registro
+                if (archivo != NULL) {
+                    printf("Ingrese el nombre del alumno: ");
+                    fgets(alumno.nombre, sizeof(alumno.nombre), stdin); // Leer nombre del alumno
+                    alumno.nombre[strcspn(alumno.nombre, "\n")] = 0;    // Eliminar salto de línea
+
+                    printf("Ingrese el promedio del alumno: ");
+                    scanf("%f", &alumno.promedio);                      // Leer promedio
+                    getchar(); // Limpiar buffer
+
+                    printf("Ingrese la carrera del alumno: ");
+                    fgets(alumno.carrera, sizeof(alumno.carrera), stdin); // Leer carrera del alumno
+                    alumno.carrera[strcspn(alumno.carrera, "\n")] = 0;    // Eliminar salto de línea
+
+                    escribirAlumno(archivo, alumno); // Escribir el registro en el archivo
+                    printf("Alumno agregado correctamente.\n");
+                } else {
+                    printf("No hay archivo abierto para agregar registros.\n");
+                }
                 break;
-            case 0:  // Salir del programa
-                printf("Saliendo del programa.\n");
-                break;
-            default:  // Opción no válida
-                printf("Opción inválida. Intente nuevamente.\n");
+
+            case 6: // Salir
+                if (archivo != NULL) {
+                    fclose(archivo); // Cerrar el archivo abierto si existe
+                }
+                printf("Saliendo del programa...\n");
+                return 0; // Finalizar el programa
+
+            default: // Opción no válida
+                printf("Opción no válida. Intente nuevamente.\n");
         }
-    } while (opcion != 0);  // Continuar mostrando el menú mientras la opción no sea 0
-
-    return 0;  // Indicar que el programa terminó exitosamente
+    }
+    return 0;
 }
-
-// Función para crear un nuevo archivo vacío
-void nuevoArchivo() {
-    char nombreArchivo[FILE_NAME_LEN];  // Variable para el nombre del archivo
-    printf("Ingrese el nombre del nuevo archivo: ");
-    fgets(nombreArchivo, FILE_NAME_LEN, stdin); // Leer el nombre del archivo
-    nombreArchivo[strcspn(nombreArchivo, "\n")] = 0; // Eliminar el salto de línea
-
-    FILE *archivo = fopen(nombreArchivo, "wb");  // Abrir archivo en modo binario para escritura
-    if (archivo == NULL) {  // Verificar si hubo error al abrir el archivo
-        perror("Error al crear el archivo");
-        return;
-    }
-
-    printf("Archivo '%s' creado exitosamente.\n", nombreArchivo);
-    fclose(archivo);  // Cerrar el archivo
-}
-
-// Función para abrir y mostrar el contenido de un archivo
-void abrirArchivo(const char *nombreArchivo) {
-    if (!verificarArchivoExiste(nombreArchivo)) {  // Comprobar si el archivo existe
-        printf("El archivo '%s' no existe.\n", nombreArchivo);
-        return;
-    }
-
-    FILE *archivo = fopen(nombreArchivo, "rb");  // Abrir archivo en modo binario para lectura
-    if (archivo == NULL) {  // Verificar si hubo error al abrir el archivo
-        perror("Error al abrir el archivo");
-        return;
-    }
-
-    Alumno alumno;  // Variable para almacenar un registro de alumno
-    printf("Contenido del archivo '%s':\n", nombreArchivo);
-    while (fread(&alumno, sizeof(Alumno), 1, archivo)) {  // Leer y mostrar registros
-        printf("Nombre: %s, Promedio: %.2f, Carrera: %s\n",
-               alumno.nombre, alumno.promedio, alumno.carrera);
-    }
-
-    fclose(archivo);  // Cerrar el archivo
-}
-
-// Resto de las funciones...
-// Las demás funciones (guardarArchivo, buscarEnArchivo, agregarAlumno, verificarArchivoExiste) 
-// ya están bien comentadas arriba. Sus propósitos incluyen agregar registros al archivo, buscar un nombre específico, y verificar si un archivo existe.
